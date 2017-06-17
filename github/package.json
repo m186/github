@@ -12,8 +12,11 @@
     "query-string": "^4.3.4",
     "react": "16.0.0-alpha.6",
     "react-native": "0.44.3",
+    "react-native-check-box": "^1.0.4",
     "react-native-deprecated-custom-components": "^0.1.0",
     "react-native-easy-toast": "^1.0.6",
+    "react-native-scrollable-tab-view": "^0.6.6",
+    "react-native-sortable-listview": "^0.2.2",
     "react-native-tab-navigator": "^0.3.3"
   },
   "devDependencies": {

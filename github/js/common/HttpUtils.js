@@ -1,3 +1,8 @@
+/* 
+ * fetch网络请求组件
+ * HttpUtils
+*/
+
 import queryString from 'query-string'; // 解析json数据
 import _ from 'lodash'; // 用来拼接对象
 

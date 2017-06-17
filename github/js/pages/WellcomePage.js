@@ -1,3 +1,8 @@
+/* 
+ * 欢迎页
+ * WellcomePage
+*/
+
 import React, { Component } from 'react';
 import {
   AppRegistry,

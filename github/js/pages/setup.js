@@ -1,3 +1,8 @@
+/* 
+ * 初始化设置页面
+ * setup
+*/
+
 import React, { Component } from 'react';
 import {
   AppRegistry,

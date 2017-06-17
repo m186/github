@@ -1,3 +1,8 @@
+/* 
+ * 顶部状态栏及顶部标题栏
+ * NavigationBar
+*/
+
 import React,{Component, PropTypes} from 'react';
 import {
     View,

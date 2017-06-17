@@ -1,0 +1,58 @@
+[
+    {
+        "path": "stars:>1",
+        "name": "ALL",
+        "short_name": "ALL",
+        "checked": true
+    },
+    {
+        "path": "iOS",
+        "name": "iOS",
+        "checked": true
+    },
+    {
+        "path": "MySql",
+        "name": "MySql",
+        "checked": false
+    },
+    {
+        "path": "Android",
+        "name": "Android",
+        "checked": true
+    },
+    {
+        "path": "JavaScript",
+        "name": "JavaScript",
+        "checked": false
+    },
+    {
+        "path": "React",
+        "name": "React",
+        "checked": true
+    },
+    {
+        "path": "Java",
+        "name": "Java",
+        "checked": false
+    },
+    {
+        "path": "AnjularJS",
+        "name": "AnjularJS",
+        "checked": false
+    },
+    {
+        "path": "react-native",
+        "name": "React Native",
+        "checked": false
+    },
+    {
+        "path": "jQuery",
+        "name": "jQuery",
+        "checked": false
+    },
+    {
+        "path": "Node",
+        "name": "Node",
+        "checked": false
+    }
+]
