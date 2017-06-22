@@ -1,8 +1,3 @@
-/* 
- * 获取数据，渲染列表，添加顶部可滑动导航
- * PopularPage，ScrollableTabView
-*/
-
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -21,20 +16,18 @@ import {
 import NavigationBar from '../common/NavigationBar'; // 顶部标题栏
 import ScrollableTabView, {ScrollableTabBar} from 'react-native-scrollable-tab-view'; // 顶部可滑动导航  
 import RepositoryCell from '../common/RepositoryCell'; // 渲染listView列表页
-import HttpUtils from '../common/HttpUtils';
 import CustomKeyPage from './my/CustomKeyPage';
 import LanguageDao, {FLAG_LANGUAGE} from '../expand/dao/LanguageDao';
 import RepositoryDetail from './RepositoryDetail';
+import TrendingUtils from '../common/TrendingUtils'; // trending数据爬取
 
-// import Navigator from 'react-native-deprecated-custom-components/src/Navigator';
-const URL = 'https://api.github.com/search/repositories?q=';
-const QUERY_STR = '&sort=stars';
 const WIDTH = Dimensions.get('window').width;
+const URL = 'https://github.com/trending/';
 
-export default class PopularPage extends Component{
+export default class TrendingPage extends Component{
     constructor(props) {
         super(props);
-        this.languageDao = new LanguageDao(FLAG_LANGUAGE.flag_key);
+        this.languageDao = new LanguageDao(FLAG_LANGUAGE.flag_language);
         this.state = {
             language: []
         }
@@ -66,28 +59,6 @@ export default class PopularPage extends Component{
             </TouchableOpacity>
         );
     }
-
-    _more() {
-        this.props.navigator.push({
-            component: CustomKeyPage,
-            params: {...this.props}
-        });
-    }
-
-    /*_leftButton() {
-        return (
-            <TouchableOpacity onPress={() => this._serch()} >
-                <Image
-                    style={styles.leftButton} 
-                    source={require('../../res/images/serch.png')}
-                />
-            </TouchableOpacity>
-        );
-    }*/
-
-    _serch() {
-
-    }
   
     render() {
         let content = this.state.language.length > 0
@@ -100,7 +71,7 @@ export default class PopularPage extends Component{
         >
             {
                 this.state.language.map((result, i, arr) => {
-                    return result.checked ? <PopularTab key={i} tabLabel={result.name} {...this.props}>{result.name}</PopularTab> : null;
+                    return result.checked ? <TrendingTab key={i} tabLabel={result.name} {...this.props}>{result.name}</TrendingTab> : null;
                 })
             }
         </ScrollableTabView>
@@ -108,9 +79,8 @@ export default class PopularPage extends Component{
         return (
             <View style={styles.container}>
                 <NavigationBar
-                    title={'Popular'}
+                    title={'Trending'}
                     style={styles.bgColor}
-                    rightButton={this._rightButton()}
                     statusBar={{
                         backgroundColor: '#2196f3'
                     }}
@@ -122,10 +92,10 @@ export default class PopularPage extends Component{
 }
 // leftButton={this._leftButton()}
 
-class PopularTab extends Component{
+class TrendingTab extends Component{
     constructor(props) {
         super(props);
-        this.httpUtils = new HttpUtils();
+        this.trendingUtils = new TrendingUtils();
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
             isLoading: true,
@@ -135,13 +105,13 @@ class PopularTab extends Component{
     }
 
     componentDidMount() {
-        this._getData();
+        // this._getData();
     }
 
     // 获取数据
     _getData() {
-        let dataUrl = this._getUrl();
-        this.httpUtils.get(dataUrl)
+        let dataUrl = this._getUrl('?since=daily', this.props.tabLabel);
+        this.trendingUtils.get(dataUrl)
         // this.dataRepository.fetchRepository(dataUrl)
         .then((result) => {
             let items = result && result.items ? result.items : result ? result : [];
@@ -161,8 +131,8 @@ class PopularTab extends Component{
         })
     }
 
-    _getUrl() {
-        return URL + this.props.tabLabel + QUERY_STR;
+    _getUrl(timespan, category) {
+        return `${URL}${category}${timespan.searchText}`;
     }
     
     _renderRow(item) {
@@ -236,3 +206,4 @@ const styles = StyleSheet.create({
         marginLeft: 10
     }
 });
+

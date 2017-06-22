@@ -1,18 +1,23 @@
 /* 
  * fetch网络请求组件
- * HttpUtils
+ * TrendingUtils
+ * 
 */
 import {
     AsyncStorage
 } from 'react-native';
 import queryString from 'query-string'; // 解析json数据
 import _ from 'lodash'; // 用来拼接对象
+import GitHubTrending from 'GitHubTrending'; 
 
-var FLAG_STORAGE = {flag_popular: 'popular', flag_trending: 'trending'};
-export default class HttpUtils{
+export default class TrendingUtils{
+    constructor(flag) {
+        this.flag = flag;
+        this.trending = new GitHubTrending();
+    }
+
     // GET请求
-    get(url, params) {
-        if (params) url += '?' + queryString.stringify(params);
+    get(url) {
         return new Promise((resolve, reject) => {
             this.getLocalData(url)
                 .then((res) => {
@@ -62,17 +67,16 @@ export default class HttpUtils{
     // 获取网络数据
     fetchNetData(url) {
         return new Promise((resolve, reject) => {
-            fetch(url)
-                .then(res => res.json())
+            this.trending.fetchTrending(url)
                 .then(result => {
                     if (!result) {
-                        reject(new Error('response is null'));
+                        reject(new Error('responseData is null'));
                         return;
                     }
                     resolve(result);
-                    this.saveResponsitory(url, result)
+                    this.saveResponsitory(url, result);
                 })
-                .catch(error => {
+                .catch((error)=> {
                     reject(error);
                 });
         })
@@ -98,29 +102,5 @@ export default class HttpUtils{
         if(cDate.getDay() !== tDate.getDay()) return;
         if(cDate.getHours() - tDate.getHours() > 4) return;
         return true;
-    }
-
-    // POST请求
-    post(url, params) {
-        const header = {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        }
-        const bodys = _.extend(header, {
-            body: JSON.stringify(params)
-        })
-        return new Promise((resolve, reject) => {
-            fetch(url, bodys)
-            .then(res => res.json())
-            .then(result => {
-                resolve(result);
-            })
-            .catch(error => {
-                reject(error);
-            });
-        });
     }
 }

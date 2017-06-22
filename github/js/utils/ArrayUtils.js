@@ -57,6 +57,10 @@ export default class ArrayUtils{
         }
     }
 
+    /*
+    * 清除选中元素工具
+    * 将已经选中的元素从数组中删除
+    */
     static remove(arr1, arr2) {
         arr1.forEach((item, index) => {
             arr2.forEach((_item, _index) => {
@@ -64,5 +68,6 @@ export default class ArrayUtils{
                 arr1.splice(index, 1);
             });
         });
+        return arr1;
     }
 }

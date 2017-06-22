@@ -16,13 +16,12 @@ import {
 export default class RepositoryCell extends Component{
     constructor(props) {
         super(props);
-
     }
 
     render() {
         const item = this.props.item;
         return (
-            <TouchableOpacity style={styles.container}>
+            <TouchableOpacity onPress={this.props.onSelect} style={styles.container}>
                 <View style={styles.cell_container}>
                     <Text style={styles.title}>{item.full_name}</Text>
                     <Text style={styles.desc}>{item.description}</Text>

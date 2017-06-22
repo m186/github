@@ -16,7 +16,6 @@ import {
     Alert
 } from 'react-native';
 import NavigationBar from '../../common/NavigationBar'; // 顶部标题栏
-import HttpUtils from '../../common/HttpUtils';         // 网络请求组件
 import ViewUtils from '../../utils/ViewUtils';          // 左侧返回按钮
 import LanguageDao, {FLAG_LANGUAGE} from '../../expand/dao/LanguageDao'; // 自定义标签存储与取出组件
 import CheckBox from 'react-native-check-box'; // 自定义标签存储与取出组件
@@ -85,7 +84,11 @@ export default class CustomKeyPage extends Component {
                 '是否确定移除', 
                 [
                     {text: '移除', onPress: () => {
-                        ArrayUtils.remove(this.state.dataArray, this.removeArr);
+                        let arr1 = ArrayUtils.remove(this.state.dataArray, this.removeArr);
+                        this.setState({
+                            dataArray: arr1
+                        });
+                        this.languageDao.save(this.state.dataArray);
                         this.props.navigator.pop();
                     }},
                     {text: '不移除', onPress: () => {}},
