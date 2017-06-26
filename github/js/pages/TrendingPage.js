@@ -15,10 +15,9 @@ import {
 } from 'react-native';
 import NavigationBar from '../common/NavigationBar'; // 顶部标题栏
 import ScrollableTabView, {ScrollableTabBar} from 'react-native-scrollable-tab-view'; // 顶部可滑动导航  
-import RepositoryCell from '../common/RepositoryCell'; // 渲染listView列表页
-import CustomKeyPage from './my/CustomKeyPage';
+import TrendingCell from '../common/TrendingCell'; // 渲染listView列表页
 import LanguageDao, {FLAG_LANGUAGE} from '../expand/dao/LanguageDao';
-import RepositoryDetail from './RepositoryDetail';
+import RepositoryDetail from './RepositoryDetail'; // 详情页webView
 import TrendingUtils from '../common/TrendingUtils'; // trending数据爬取
 
 const WIDTH = Dimensions.get('window').width;
@@ -90,7 +89,6 @@ export default class TrendingPage extends Component{
         );
     }
 }
-// leftButton={this._leftButton()}
 
 class TrendingTab extends Component{
     constructor(props) {
@@ -105,7 +103,7 @@ class TrendingTab extends Component{
     }
 
     componentDidMount() {
-        // this._getData();
+        this._getData();
     }
 
     // 获取数据
@@ -114,6 +112,7 @@ class TrendingTab extends Component{
         this.trendingUtils.get(dataUrl)
         // this.dataRepository.fetchRepository(dataUrl)
         .then((result) => {
+            result = JSON.parse(result);
             let items = result && result.items ? result.items : result ? result : [];
             this.setState({
                 dataSource: this.state.dataSource.cloneWithRows(items),
@@ -137,15 +136,15 @@ class TrendingTab extends Component{
     
     _renderRow(item) {
         return (
-            <RepositoryCell
-                onSelect={(data) => this.onSelect(item)}
-                key={item.id}
+            <TrendingCell
+                onSelect={(item) => this.onSelect(item)}
                 item={item}
             />
         )
     }
 
-    onSelect(item) { // 从RepositoryCell页面传回来的事件
+    onSelect(item) { // 从TrendingCell页面传回来的事件
+        debugger;
         this.props.navigator.push({
             component: RepositoryDetail,
             params: {

@@ -30,7 +30,7 @@ export default class LanguageDao{
                 }
                 else
                 {
-                    let data = this.flag === FLAG_LANGUAGE.flag_language ? keys : langs;
+                    let data = this.flag === FLAG_LANGUAGE.flag_key ? keys : langs;
                     this.save(data);
                     resolve(data);
                 }

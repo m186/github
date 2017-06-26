@@ -144,7 +144,8 @@ class PopularTab extends Component{
         this.httpUtils.get(dataUrl)
         // this.dataRepository.fetchRepository(dataUrl)
         .then((result) => {
-            let items = result && result.items ? result.items : result ? result : [];
+            result = JSON.parse(result);
+            let items = result && result.items ? result.items.items : result ? result : [];
             this.setState({
                 dataSource: this.state.dataSource.cloneWithRows(items),
                 isLoading: false
@@ -168,7 +169,7 @@ class PopularTab extends Component{
     _renderRow(item) {
         return (
             <RepositoryCell
-                onSelect={(data) => this.onSelect(item)}
+                onSelect={(item) => this.onSelect(item)}
                 key={item.id}
                 item={item}
             />
