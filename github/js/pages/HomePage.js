@@ -61,7 +61,7 @@ export default class HomePage extends Component {
             <TabNavigator>
                 {this._renderTab(PopularPage, 'Popular', '最热', require('../../res/images/populars.png'))}
                 {this._renderTab(TrendingPage, 'Trending', '趋势', require('../../res/images/trending.png'))}
-                {this._renderTab(ListViews, 'Favorite', '收藏', require('../../res/images/love.png'))}
+                {this._renderTab(MyPage, 'Favorite', '收藏', require('../../res/images/love.png'))}
                 {this._renderTab(MyPage, 'My', '我的', require('../../res/images/git.png'))}
             </TabNavigator>
             <Toast ref={toast => this.toast = toast}/>

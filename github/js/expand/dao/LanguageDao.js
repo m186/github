@@ -19,7 +19,7 @@ export default class LanguageDao{
         return new Promise((resolve, reject) => {
             AsyncStorage.getItem(this.flag)
             .then((res) => {
-                if (res)
+                if (res && res != null)
                 {
                     try{
                         resolve(JSON.parse(res));

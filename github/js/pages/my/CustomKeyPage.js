@@ -25,7 +25,7 @@ export default class CustomKeyPage extends Component {
     constructor(props) {
         super(props);
         this.isRemove = this.props.isRemove ? true : false;
-        this.languageDao = new LanguageDao(FLAG_LANGUAGE.flag_key);
+        this.languageDao = new LanguageDao(this.props.flag);
         this.changeValues = [];
         this.removeArr = [];
         this.state = {
@@ -189,13 +189,15 @@ export default class CustomKeyPage extends Component {
     }
 
     render() {
+        let title = this.props.flag === FLAG_LANGUAGE.flag_key ? 'Key Custom' : 'Language Custom';
+        let EditTitle = this.props.flag === FLAG_LANGUAGE.flag_key ? 'Key Edit' : 'Language Edit';
         return (
             <View style={styles.container}>
                 {
                     this.isRemove
                     ? <NavigationBar 
                         style={styles.bgColor}
-                        title={'Edit'}
+                        title={EditTitle}
                         leftButton={ViewUtils.leftButton(() => this._onSave())}
                         rightButton={this._rightButtons()}
                         statusBar={{
@@ -204,7 +206,7 @@ export default class CustomKeyPage extends Component {
                     />
                     : <NavigationBar 
                         style={styles.bgColor}
-                        title={'Custom'}
+                        title={title}
                         leftButton={ViewUtils.leftButton(() => this._onSave())}
                         rightButton={this._rightButton()}
                         statusBar={{

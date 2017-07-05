@@ -31,7 +31,6 @@ export default class DataRepository{
                     reject(error);
                 });
             });
-
         });
     }
 

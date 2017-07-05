@@ -34,7 +34,7 @@ export default class SortKeyPage extends Component {
     }
 
     componentDidMount() {
-        this.languageDao = new LanguageDao(FLAG_LANGUAGE.flag_key);
+        this.languageDao = new LanguageDao(this.props.flag);
         this.loadData();
     }
 
@@ -111,6 +111,7 @@ export default class SortKeyPage extends Component {
     }
 
     render() {
+        let title = this.props.flag === FLAG_LANGUAGE.flag_key ? 'Key Sort' : 'Language Sort'
         return (
             <View style={styles.container}>
                 <NavigationBar 

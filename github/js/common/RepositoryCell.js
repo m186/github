@@ -16,10 +16,42 @@ import {
 export default class RepositoryCell extends Component{
     constructor(props) {
         super(props);
+        let isFavorite = this.props.ProjectModel.isFavorite;
+        let favoriteIcon = isFavorite ? require('../../res/images/stars1.png') : require('../../res/images/star1.png');
+        this.state = {
+            isFavorite: isFavorite,
+            favoriteIcon: favoriteIcon
+        }
+    }
+
+    _favoriteButton() {
+        if (this.state.isFavorite) {
+            this.setState({
+                isFavorite: false,
+                favoriteIcon: require('../../res/images/star1.png')
+            });    
+        }
+        else {
+            this.setState({
+                isFavorite: true,
+                favoriteIcon: require('../../res/images/stars1.png')
+            });
+        }
+        this.props.onFavorite(this.props.ProjectModel.item, !this.state.isFavorite);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.setState({
+            isFavorite: nextProps.ProjectModel.isFavorite,
+            favoriteIcon: nextProps.ProjectModel.isFavorite ? require('../../res/images/stars1.png') : require('../../res/images/star1.png')
+        })
     }
 
     render() {
-        const item = this.props.item;
+        const item = this.props.ProjectModel.item ? this.props.ProjectModel.item : this.props.ProjectModel;
+        let favoriteButton = <TouchableOpacity onPress={() => this._favoriteButton()}>
+            <Image style={styles.starBox} source={this.state.favoriteIcon}/>
+        </TouchableOpacity>
         return (
             <TouchableOpacity onPress={this.props.onSelect} style={styles.container}>
                 <View style={styles.cell_container}>
@@ -34,7 +66,7 @@ export default class RepositoryCell extends Component{
                             <Text>Stars: </Text>
                             <Text>{item.stargazers_count}</Text>
                         </View>
-                        <Image style={styles.starBox} source={require('../../res/images/stars1.png')}/>
+                        {favoriteButton}
                     </View>
                 </View>
             </TouchableOpacity>
@@ -89,5 +121,6 @@ const styles = StyleSheet.create({
     starBox: {
         width: 18,
         height:18,
+        tintColor: '#2196f3'
     }
 });

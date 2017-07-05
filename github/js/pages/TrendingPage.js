@@ -1,3 +1,8 @@
+/* 
+ * 对从GitHub中爬取的数据进行渲染
+ * TrendingPage 
+*/
+
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -19,16 +24,26 @@ import TrendingCell from '../common/TrendingCell'; // 渲染listView列表页
 import LanguageDao, {FLAG_LANGUAGE} from '../expand/dao/LanguageDao';
 import RepositoryDetail from './RepositoryDetail'; // 详情页webView
 import TrendingUtils from '../common/TrendingUtils'; // trending数据爬取
+import TimeSpan from '../model/TimeSpan'; 
+import Popover from '../common/Popover'; // Popover点击弹出框
 
 const WIDTH = Dimensions.get('window').width;
 const URL = 'https://github.com/trending/';
-
+var timeSpanArray = [
+    new TimeSpan('Today', 'since=daily'),
+    new TimeSpan('This Week', 'since=weekly'),
+    new TimeSpan('This Month', 'since=monthly')
+]
 export default class TrendingPage extends Component{
     constructor(props) {
         super(props);
         this.languageDao = new LanguageDao(FLAG_LANGUAGE.flag_language);
         this.state = {
-            language: []
+            language: [],
+            isVisible: false,
+            buttonRect: {},
+            timeSpan: timeSpanArray[0],
+            text: 'today'
         }
     }
 
@@ -58,6 +73,42 @@ export default class TrendingPage extends Component{
             </TouchableOpacity>
         );
     }
+
+    showPopover() {
+        this.refs.button.measure((ox, oy, width, height, px, py) => {
+            this.setState({
+                isVisible: true,
+                buttonRect: {x: px, y: py, width: width, height: height}
+            });
+        });
+    }
+
+    closePopover() {
+        this.setState({isVisible: false});
+    }
+
+    _renderTitleView() {
+        return (
+            <View>
+                <TouchableOpacity ref='button' onPress={() => this.showPopover()}>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <Text style={{color: '#fff', fontSize: 20}}>Trending</Text>
+                        <Text style={{marginLeft: 10, color: '#fff', fontSize: 20}}>{this.state.text}</Text>
+                        <Image style={{width: 32, height: 32, marginLeft: -8}} source={require('../../res/images/arrow.png')}/>
+                    </View>
+                </TouchableOpacity>
+                
+            </View>
+        )
+    }
+
+    _onSelect(res) {
+        this.setState({
+            text: res.showText,
+            timeSpan: res,
+            isVisible: false
+        });
+    }
   
     render() {
         let content = this.state.language.length > 0
@@ -70,21 +121,40 @@ export default class TrendingPage extends Component{
         >
             {
                 this.state.language.map((result, i, arr) => {
-                    return result.checked ? <TrendingTab key={i} tabLabel={result.name} {...this.props}>{result.name}</TrendingTab> : null;
+                    return result.checked ? <TrendingTab key={i} timeSpan={this.state.timeSpan} tabLabel={result.name} {...this.props}>{result.name}</TrendingTab> : null;
                 })
             }
         </ScrollableTabView>
         : null;
+        let timeSpanView = 
+            <Popover
+                isVisible={this.state.isVisible}
+                fromRect={this.state.buttonRect}
+                placement='bottom'
+                onClose={() => this.closePopover()}
+                contentStyle={{backgroundColor: '#343434', opacity: .8}}
+            >
+                {
+                    timeSpanArray.map((res, i, arr) => {
+                        return (
+                            <TouchableOpacity underlayColor='transparent' key={i} onPress={() => this._onSelect(res)}>
+                                <Text style={{fontSize:18, padding: 8, alignSelf: 'center', color: '#fff', fontWeight: '400'}}>{res.showText}</Text>
+                            </TouchableOpacity>
+                        );
+                    })
+                }
+            </Popover>
         return (
             <View style={styles.container}>
                 <NavigationBar
-                    title={'Trending'}
+                    titleView={this._renderTitleView()}
                     style={styles.bgColor}
                     statusBar={{
                         backgroundColor: '#2196f3'
                     }}
                 />
                 {content}
+                {timeSpanView}
             </View>
         );
     }
@@ -93,6 +163,7 @@ export default class TrendingPage extends Component{
 class TrendingTab extends Component{
     constructor(props) {
         super(props);
+        this.timeSpan = this.props.timeSpan;
         this.trendingUtils = new TrendingUtils();
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
@@ -103,12 +174,16 @@ class TrendingTab extends Component{
     }
 
     componentDidMount() {
-        this._getData();
+        this._getData(this.props.timeSpan);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if(nextProps.timeSpan !== this.props.timeSpan) this._getData(nextProps.timeSpan);
     }
 
     // 获取数据
-    _getData() {
-        let dataUrl = this._getUrl('?since=daily', this.props.tabLabel);
+    _getData(timeSpan) {
+        let dataUrl = this._getUrl(timeSpan, this.props.tabLabel);
         this.trendingUtils.get(dataUrl)
         // this.dataRepository.fetchRepository(dataUrl)
         .then((result) => {
@@ -131,20 +206,19 @@ class TrendingTab extends Component{
     }
 
     _getUrl(timespan, category) {
-        return `${URL}${category}${timespan.searchText}`;
+        return `${URL}${category}?${timespan.searchText}`;
     }
     
     _renderRow(item) {
         return (
             <TrendingCell
-                onSelect={(item) => this.onSelect(item)}
+                onSelect={() => this.onSelect(item)}
                 item={item}
             />
         )
     }
 
     onSelect(item) { // 从TrendingCell页面传回来的事件
-        debugger;
         this.props.navigator.push({
             component: RepositoryDetail,
             params: {
@@ -160,7 +234,7 @@ class TrendingTab extends Component{
                 isLoading: true
             })
         }
-        this._getData();
+        this._getData(this.props.timeSpan);
     }
 
     render() {

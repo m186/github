@@ -24,13 +24,17 @@ import RepositoryCell from '../common/RepositoryCell'; // 渲染listView列表�
 import HttpUtils from '../common/HttpUtils';
 import CustomKeyPage from './my/CustomKeyPage';
 import LanguageDao, {FLAG_LANGUAGE} from '../expand/dao/LanguageDao';
+import FavoriteDao from '../expand/dao/FavoriteDao';
 import RepositoryDetail from './RepositoryDetail';
+import ProjectModel from '../model/ProjectModel';
+import Utils from '../utils/Utils';
 
 // import Navigator from 'react-native-deprecated-custom-components/src/Navigator';
 const URL = 'https://api.github.com/search/repositories?q=';
 const QUERY_STR = '&sort=stars';
 const WIDTH = Dimensions.get('window').width;
 
+var favoriteDao = new FavoriteDao('POPULAR');
 export default class PopularPage extends Component{
     constructor(props) {
         super(props);
@@ -46,14 +50,14 @@ export default class PopularPage extends Component{
 
     loadData() {
         this.languageDao.fetch()
-        .then((result) => {
-            this.setState({
-                language: result
+            .then((result) => {
+                this.setState({
+                    language: result
+                })
             })
-        })
-        .catch((error) => {
-            console.log(err);
-        })
+            .catch((error) => {
+                console.log(error);
+            })
     }
 
     _rightButton() {
@@ -129,7 +133,8 @@ class PopularTab extends Component{
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
             isLoading: true,
-            dataSource: ds
+            dataSource: ds,
+            favoriteKeys: []
         }
         this._onRefresh()
     }
@@ -138,40 +143,90 @@ class PopularTab extends Component{
         this._getData();
     }
 
+    // 更新Project 每条的收藏状态
+    flushFavorite() {
+        let projectModels = [];
+        let items = this.items;
+        this.items.forEach((result, index) => {
+            projectModels.push(new ProjectModel(result, Utils.checkFavorite(result, this.state.favoriteKeys)));
+        });
+        this.updateState({
+            dataSource: this.getDataSource(projectModels),
+            isLoading: false
+        });
+    }
+
+    // 获取每条的dataSource数据
+    getDataSource(projectModels) {
+        return this.state.dataSource.cloneWithRows(projectModels);
+    }
+
+    // 获取用户收藏的所有keys
+    getFavoriteKeys() {
+        favoriteDao.getFavoriteItem()
+            .then((keys) => {
+                if (keys) {
+                    this.updateState({
+                        favoriteKeys: keys
+                    });
+                }
+                this.flushFavorite();
+            })
+            .catch((error) => {
+                this.flushFavorite();
+            });
+    }
+
+    // 封装setState
+    updateState(dic) {
+        if (!this) return;
+        this.setState(dic);
+    }
+
     // 获取数据
     _getData() {
         let dataUrl = this._getUrl();
         this.httpUtils.get(dataUrl)
         // this.dataRepository.fetchRepository(dataUrl)
-        .then((result) => {
-            result = JSON.parse(result);
-            let items = result && result.items ? result.items.items : result ? result : [];
-            this.setState({
-                dataSource: this.state.dataSource.cloneWithRows(items),
-                isLoading: false
-            });
-        })
-        .then(items => {
-            if (!items || items.length === 0) return;
-            this.setState({
-                dataSource: this.state.dataSource.cloneWithRows(items)
-            });
-        })
-        .catch((error) => {
-            
-        })
+            .then((result) => {
+                result = JSON.parse(result);
+                this.items = result && result.items ? result.items.items : result ? result : [];
+                this.getFavoriteKeys();
+                // this.flushFavorite();
+            })
+            .then(items => {
+                if (!items || items.length === 0) return;
+                this.items = items;
+                this.getFavoriteKeys();
+                // this.flushFavorite();
+            })
+            .catch((error) => {
+                this.updateState({
+                    isLoading: false
+                });
+            })
     }
 
     _getUrl() {
         return URL + this.props.tabLabel + QUERY_STR;
     }
+
+    // 收藏图标的单击回调函数
+    onFavorite(item, isFavorite) {
+        if (isFavorite) {
+            favoriteDao.saveFavoriteItem(item.id.toString(), JSON.stringify(item));
+        }
+        else {
+            favoriteDao.removeFavoriteItem(item.id.toString());
+        }
+    }
     
-    _renderRow(item) {
+    _renderRow(projectModel) {
         return (
             <RepositoryCell
-                onSelect={(item) => this.onSelect(item)}
-                key={item.id}
-                item={item}
+                onSelect={() => this.onSelect(projectModel)}
+                ProjectModel={projectModel}
+                onFavorite={(item, isFavorite) => this.onFavorite(item, isFavorite)}
             />
         )
     }
