@@ -1,7 +1,4 @@
-/*
- *
- * 
-*/
+
 import React, { Component } from 'react';
 import {
     AsyncStorage
@@ -47,7 +44,11 @@ export default class FavoriteDao{
                     if(index === -1) favoriteKeys.push(key);
                 }
                 else {
-                    if(index !== -1) favoriteKeys.splice(key, 1);
+                    if(index !== -1) {
+                        favoriteKeys.forEach((_item, _index) => {
+                            if (_item == key) favoriteKeys.splice(_index, 1);
+                        })
+                    }
                 }
                 AsyncStorage.setItem(this.favoriteKey, JSON.stringify(favoriteKeys));
             }
@@ -59,7 +60,7 @@ export default class FavoriteDao{
      * key: 项目id或名称
     */
     removeFavoriteItem(key) {
-        AsyncStorage.getItem(key, (error, result) => {
+        AsyncStorage.removeItem(key, (error, result) => {
             if(!error) {
                 this.updateFavoriteKey(key, false);
             }
@@ -82,6 +83,35 @@ export default class FavoriteDao{
                 else {
                     reject(error);
                 }
+            });
+        });
+    }
+
+    /*
+     * 获取所有收藏项目 
+    */
+    getAllItems() {
+        return new Promise((resolve, reject) => {
+            this.getFavoriteItem().then((keys) => {
+                var items = [];
+                if(keys) {
+                    AsyncStorage.multiGet(keys, (error, stores) => {
+                        try {
+                            stores.map((result, index, arr) => {
+                                var value = result[1];
+                                if(value) items.push(value);
+                            });
+                            resolve(items);
+                        } catch (error) {
+                            reject(error);
+                        }
+                    });
+                } 
+                else {
+                    resolve(items);
+                }
+            }).catch((error) => {
+                reject(error);
             });
         });
     }

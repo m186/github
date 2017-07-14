@@ -26,6 +26,9 @@ import RepositoryDetail from './RepositoryDetail'; // 详情页webView
 import TrendingUtils from '../common/TrendingUtils'; // trending数据爬取
 import TimeSpan from '../model/TimeSpan'; 
 import Popover from '../common/Popover'; // Popover点击弹出框
+import FavoriteDao from '../expand/dao/FavoriteDao';
+import ProjectModel from '../model/ProjectModel';
+import Utils from '../utils/Utils';
 
 const WIDTH = Dimensions.get('window').width;
 const URL = 'https://github.com/trending/';
@@ -34,6 +37,7 @@ var timeSpanArray = [
     new TimeSpan('This Week', 'since=weekly'),
     new TimeSpan('This Month', 'since=monthly')
 ]
+var favoriteDao = new FavoriteDao('TRENDING');
 export default class TrendingPage extends Component{
     constructor(props) {
         super(props);
@@ -178,7 +182,52 @@ class TrendingTab extends Component{
     }
 
     componentWillReceiveProps(nextProps) {
-        if(nextProps.timeSpan !== this.props.timeSpan) this._getData(nextProps.timeSpan);
+        if(nextProps.timeSpan !== this.props.timeSpan){
+            this._getData(nextProps.timeSpan);
+        } else {
+            this._getData(this.props.timeSpan);
+        }
+    }
+
+    // 获取每条的dataSource数据
+    getDataSource(projectModels) {
+        return this.state.dataSource.cloneWithRows(projectModels);
+    }
+
+    // 更新Project 每条的收藏状态
+    flushFavorite() {
+        let projectModels = [];
+        let items = this.items;
+        items.forEach((result, index) => {
+            let isFlag = Utils.checkFavorite(result, this.state.favoriteKeys);
+            projectModels.push(new ProjectModel(result, isFlag));
+        });
+        this.updateState({
+            dataSource: this.getDataSource(projectModels),
+            isLoading: false
+        });
+    }
+
+    // 获取用户收藏的所有keys
+    getFavoriteKeys() {
+        favoriteDao.getFavoriteItem()
+            .then((keys) => {
+                if (keys) {
+                    this.updateState({
+                        favoriteKeys: keys
+                    });
+                }
+                this.flushFavorite();
+            })
+            .catch((error) => {
+                this.flushFavorite();
+            });
+    }
+
+    // 封装setState
+    updateState(dic) {
+        if (!this) return;
+        this.setState(dic);
     }
 
     // 获取数据
@@ -188,17 +237,21 @@ class TrendingTab extends Component{
         // this.dataRepository.fetchRepository(dataUrl)
         .then((result) => {
             result = JSON.parse(result);
-            let items = result && result.items ? result.items : result ? result : [];
-            this.setState({
-                dataSource: this.state.dataSource.cloneWithRows(items),
-                isLoading: false
-            });
+            this.items = result && result.items ? result.items : result ? result : [];
+
+            this.getFavoriteKeys();
+            // this.setState({
+            //     dataSource: this.state.dataSource.cloneWithRows(items),
+            //     isLoading: false
+            // });
         })
         .then(items => {
             if (!items || items.length === 0) return;
-            this.setState({
-                dataSource: this.state.dataSource.cloneWithRows(items)
-            });
+            this.items = items;
+            this.getFavoriteKeys();
+            // this.setState({
+            //     dataSource: this.state.dataSource.cloneWithRows(items)
+            // });
         })
         .catch((error) => {
             
@@ -209,13 +262,24 @@ class TrendingTab extends Component{
         return `${URL}${category}?${timespan.searchText}`;
     }
     
-    _renderRow(item) {
+    _renderRow(projectModel) {
         return (
             <TrendingCell
-                onSelect={() => this.onSelect(item)}
-                item={item}
+                onSelect={() => this.onSelect(projectModel)}
+                ProjectModel={projectModel}
+                onFavorite={(item, isFavorite) => this.onFavorite(item, isFavorite)}
             />
         )
+    }
+
+    // 收藏图标的单击回调函数
+    onFavorite(item, isFavorite) {
+        if (isFavorite) {
+            favoriteDao.saveFavoriteItem(item.url, JSON.stringify(item));
+        }
+        else {
+            favoriteDao.removeFavoriteItem(item.url);
+        }
     }
 
     onSelect(item) { // 从TrendingCell页面传回来的事件
