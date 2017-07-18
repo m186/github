@@ -1,5 +1,5 @@
 /*
- * 关于页面
+ * 关于作者页面
  * about
 */
 import React, { Component } from 'react';
@@ -22,9 +22,8 @@ import GlobalStyles from "../my/GlobalStyle";
 import AboutCommon, {FLAG_ABOUT} from './AboutCommon';
 import {MORE_MENU} from '../../common/MoreMenu';
 import WebViewPage from '../WebViewPage';
-import AboutMePage from './AboutMePage';
 
-export default class AboutPage extends Component{
+export default class AboutMePage extends Component{
     constructor(props) {
         super(props);
         this.aboutCommon = new AboutCommon(props, (dic) => this.updateState(dic), FLAG_ABOUT.flag_about);
@@ -51,7 +50,7 @@ export default class AboutPage extends Component{
                     .catch(err => console.error('An error occurred', err));
                 break;
             case 'About Author':
-                TargetComponent = AboutMePage;
+
                 break;
             case 'Web Site':
                 TargetComponent = WebViewPage;
@@ -70,11 +69,11 @@ export default class AboutPage extends Component{
 
     render() {
         let contentView = <View>
-            {ViewUtils.getSetingItem(() => this.onClicks(MORE_MENU.WebSite), require('../my/img/website.png'), '主页')}
+            {ViewUtils.getSetingItem(() => this.onClicks(MORE_MENU.WebSite), require('../my/img/website.png'), '主页', require('../my/img/arrowDowns.png'))}
             <View style={GlobalStyles.line}/>
-            {ViewUtils.getSetingItem(() => this.onClicks(MORE_MENU.About_Author), require('../my/img/author4.png'), '关于作者')}
+            {ViewUtils.getSetingItem(() => this.onClicks(MORE_MENU.About_Author), require('../my/img/author4.png'), '关于作者', require('../my/img/arrowDowns.png'))}
             <View style={GlobalStyles.line}/>
-            {ViewUtils.getSetingItem(() => this.onClicks(MORE_MENU.Feedback), require('../my/img/feedback.png'), '反馈')}
+            {ViewUtils.getSetingItem(() => this.onClicks(MORE_MENU.Feedback), require('../my/img/feedback.png'), '反馈', require('../my/img/arrowDowns.png'))}
         </View>;
         return this.aboutCommon.renderView(contentView);
     }

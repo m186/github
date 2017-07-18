@@ -20,9 +20,10 @@ import CustomKeyPage from './CustomKeyPage';
 import SortKeyPage from './SortKeyPage';
 import {FLAG_LANGUAGE} from '../../expand/dao/LanguageDao';
 import {MORE_MENU} from '../../common/MoreMenu';
-import GlobalStyles from '../../../res/styles/GlobalStyle';
+import GlobalStyles from './GlobalStyle';
 import ViewUtils from '../../utils/ViewUtils';
 import AboutPage from '../about/AboutPage';
+import AboutMePage from '../about/AboutMePage';
 
 export default class MyPage extends Component {
     constructor(props) {
@@ -58,7 +59,7 @@ export default class MyPage extends Component {
                 params.isRemove = true;
                 break;
             case 'About Author':
-
+                TargetComponent = AboutMePage;
                 break;
             case 'About':
                 TargetComponent = AboutPage;

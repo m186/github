@@ -17,8 +17,8 @@ import {
 } from 'react-native';
 import ParallaxScrollView from 'react-native-parallax-scroll-view';
 import ViewUtils from '../../utils/ViewUtils';
-import GlobalStyles from '../../../res/styles/GlobalStyle';
-import {MORE_MENU} from '../../common/MoreMenu';
+// import GlobalStyles from '../my/GlobalStyle';
+// import {MORE_MENU} from '../../common/MoreMenu';
 
 export var FLAG_ABOUT = {flag_about: 'about', flag_about_me: 'about_me'}
 export default class AboutCommon{
