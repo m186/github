@@ -11,5 +11,9 @@ export const MORE_MENU = {
     About: 'About',
     Custom_Theme: 'Custom Theme',
     WebSite: 'Web Site',
-    Feedback: 'Feedback'
+    Feedback: 'Feedback',
+    Blog: 'Blog',
+    Contact: 'Contact',
+    QQ: 'QQ',
+    WeChat: 'WeChat'
 }
